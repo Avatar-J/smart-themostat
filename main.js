@@ -317,10 +317,12 @@ document.getElementById("save").addEventListener("click", () => {
     const currRoom = rooms.find((room) => room.name === selectedRoom);
 
     if (coolInput.value >= 10 && coolInput.value < 25) {
+      errorSpan.style.display = "none";
       currRoom.setColdPreset(coolInput.value);
     }
 
     if (warmInput.value >= 25 && warmInput.value <= 32) {
+      errorSpan.style.display = "none";
       currRoom.setWarmPreset(warmInput.value);
     }
     coolInput.value = "";
