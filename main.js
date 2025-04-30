@@ -234,7 +234,16 @@ roomSelect.addEventListener("change", function () {
 
 // Set preset temperatures
 const defaultSettings = document.querySelector(".default-settings");
-defaultSettings.addEventListener("click", function (e) {});
+defaultSettings.addEventListener("click", function (e) {
+  const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
+  if (e.target.id === "cool") {
+    room.setCurrTemp(room.coldPreset);
+    setSelectedRoom(selectedRoom);
+  } else {
+    room.setCurrTemp(room.warmPreset);
+    setSelectedRoom(selectedRoom);
+  }
+});
 
 // Increase and decrease temperature
 document.getElementById("increase").addEventListener("click", () => {
