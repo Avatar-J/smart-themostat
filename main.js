@@ -351,7 +351,7 @@ inputFile.addEventListener("change", (e) => {
   fileName.textContent = e.target.files[0].name;
 });
 
-//to manage state of modal
+//to manage state of modal and turn all AC button
 function stateOfElement(initialState = false) {
   let state = initialState;
   return {
@@ -480,6 +480,10 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
 });
 
 // Rooms Control
+
+//set state of all ACs
+const turnACsBtnState = stateOfElement();
+
 // Generate rooms
 const generateRooms = () => {
   const roomsControlContainer = document.querySelector(".rooms-control");
@@ -509,20 +513,26 @@ const generateRooms = () => {
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
-  if (roomsHTML) {
+
+  //turn all ACs on
+  if (roomsControlContainer) {
+    let areACsOn = turnACsBtnState.get();
     const turnACsOn = document.createElement("div");
     const OnBtn = document.createElement("button");
-    OnBtn.textContent = "Turn Rooms On";
+    OnBtn.textContent = `Turn ACs ${areACsOn ? "off" : "On"}`;
     OnBtn.classList.add("turn-on-btn");
     turnACsOn.classList.add("btn-section");
 
-    OnBtn.addEventListener("click", () => {
-      console.log("Turning all rooms on!");
-      rooms.forEach((room) => room.toggleAircon());
-    });
-
     turnACsOn.appendChild(OnBtn);
-    roomsControlContainer.appendChild(turnACsOn);
+    document.querySelector(".rooms-control").appendChild(turnACsOn);
+
+    OnBtn.addEventListener("click", () => {
+      rooms.forEach((room) => {
+        room.toggleAircon();
+      });
+      areACsOn = turnACsBtnState.toggle();
+      generateRooms();
+    });
   }
 };
 const displayTime = (room) => {
