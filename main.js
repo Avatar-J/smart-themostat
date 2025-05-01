@@ -339,6 +339,18 @@ document.getElementById("save").addEventListener("click", () => {
   }
 });
 
+//add rooms -- edited and added by me
+const inputFile = document.getElementById("file-input");
+let fileName = document.getElementById("file-name");
+inputFile.addEventListener("change", (e) => {
+  fileName.textContent = e.target.files[0].name;
+});
+
+document.getElementById("add_room").addEventListener("click", () => {
+  const modalOverlay = document.getElementById("overlay");
+  modalOverlay.classList.remove("hidden");
+});
+
 // Rooms Control
 // Generate rooms
 const generateRooms = () => {
