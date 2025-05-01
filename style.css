@@ -231,7 +231,8 @@ svg.point {
 
 #cool,
 #warm,
-#show_modal {
+#show_modal,
+.turn-on-btn {
   background-color: #d9d9d9;
   border: none;
   display: flex;
@@ -423,7 +424,7 @@ svg.point {
   margin-bottom: 20px;
 }
 
-.add-room-btn-section {
+.btn-section {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -497,6 +498,10 @@ svg.point {
   padding: 5px;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.turn-on-btn {
+  margin-top: 20px;
 }
 
 

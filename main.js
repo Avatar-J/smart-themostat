@@ -509,6 +509,21 @@ const generateRooms = () => {
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
+  if (roomsHTML) {
+    const turnACsOn = document.createElement("div");
+    const OnBtn = document.createElement("button");
+    OnBtn.textContent = "Turn Rooms On";
+    OnBtn.classList.add("turn-on-btn");
+    turnACsOn.classList.add("btn-section");
+
+    OnBtn.addEventListener("click", () => {
+      console.log("Turning all rooms on!");
+      rooms.forEach((room) => room.toggleAircon());
+    });
+
+    turnACsOn.appendChild(OnBtn);
+    roomsControlContainer.appendChild(turnACsOn);
+  }
 };
 const displayTime = (room) => {
   return `
