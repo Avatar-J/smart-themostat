@@ -1,137 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Manrope Font Embeded -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap"
-      rel="stylesheet"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Animate CSS -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
-    />
+  <!-- Manrope Font Embeded -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet" />
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css" />
+  <!-- Animate CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-    <!-- JS -->
-    <script src="./main.js" defer></script>
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 
-    <title>Smart Home | Thermostat Widget</title>
-  </head>
-  <body>
-    <div class="main-container">
-      <div class="container animate__animated animate__fadeInUp">
-        <div class="top-content">
-          <h1 class="logo">Thermostat</h1>
-          <select id="rooms"></select>
-        </div>
-        <!-- Interior card -->
-        <div class="room">
-          <div class="text">
-            <h3 class="room-name">Living Room</h3>
-            <p class="currentTemp">27°</p>
+  <!-- JS -->
+  <script src="./main.js" defer></script>
+
+  <title>Smart Home | Thermostat Widget</title>
+</head>
+
+<body>
+  <div class="main-container">
+    <div class="container animate__animated animate__fadeInUp">
+      <!---------------------- Modal ----------------------->
+      <div id="modal-container" class="hidden">
+
+        <div id="modal">
+          <div class="modal-header">
+            <h1 class="add-room-title">Add a room</h1>
+            <button id="close-modal"><ion-icon name="close"></ion-icon></button>
+
           </div>
-        </div>
-        <div class="main-content">
-          <div class="temperature">
-            <svg
-              class="point"
-              width="44"
-              height="44"
-              viewBox="0 0 44 44"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="22"
-                cy="22"
-                r="19.5"
-                fill="#515155"
-                stroke="white"
-                stroke-width="5"
-              />
-              <circle cx="21.5" cy="21.5" r="9.5" fill="#FFD7A8" />
-            </svg>
 
-            <div class="info">
-              <p>Current Temp</p>
-              <h1 id="temp"></h1>
+          <form id="add-room-form" action="" method="post">
+
+            <div class="room-data">
+              <label for="room-name">Room name</label>
+              <input id="room-name" type="text" name="name" placeholder="eg. Bedroom, Living Room" />
             </div>
-          </div>
 
-          <div class="controls">
-            <p>Set Temperature</p>
-            <div class="buttons">
-              <button id="reduce">
-                <ion-icon size="large" name="remove-outline"></ion-icon>
-              </button>
-              <button id="increase">
-                <ion-icon size="large" name="add-outline"></ion-icon>
-              </button>
+            <div class="room-data">
+              <label for="file-input" class="img-label">
+                <div>Upload image</div>
+                <div class="choose-file-block">
+                  <div class="choose-file">Choose file...</div>
+                  <span id="file-name">No file choosen</span>
+                </div>
+
+              </label>
+              <input type="file" id="file-input" name="image" accept="image/*">
             </div>
-          </div>
 
-          <div class="default-settings">
-            <button id="cool">
-              <ion-icon size="large" name="snow-outline"></ion-icon>
-              Cool
-            </button>
-            <button id="warm">
-              <ion-icon size="large" name="leaf"></ion-icon>
-              warm
-            </button>
-          </div>
+            <div class="room-data">
+              <label for="curr-temp">Current Temperature</label>
+              <input id="curr-temp" type="number" min="10" max="32" placeholder="eg. 25°" name="currTemp" />
+            </div>
 
-          <div class="configure">
-            <button id="newPreset">
-              <ion-icon name="cog"></ion-icon>Configure Presets
-            </button>
-          </div>
+            <div class="room-data row-display">
+              <div>
+                <label for="coldPreset">Cold Preset</label>
+                <input id="coldPreset" type="number" min="10" max="24" placeholder="Cool" name="coldPreset" />
+              </div>
 
-          <div class="inputs hidden">
-            <input
-              id="coolInput"
-              type="number"
-              min="10"
-              max="22"
-              placeholder="Cool"
-            />
-            <input
-              id="warmInput"
-              type="number"
-              min="22"
-              max="32"
-              placeholder="Warm"
-            />
-            <button id="save">Save</button>
-            <button id="close"><ion-icon name="close"></ion-icon></button>
+              <div>
+                <label for="warmPreset">Warm preset</label>
+                <input id="warmPreset" type="number" min="22" max="32" placeholder="Warm" name="warmPreset" />
+              </div>
 
-            <span class="error"></span>
-          </div>
+            </div>
+
+            <!-- <div class="room-data row-display">
+              <div>
+                <label for="start-time">Start time</label>
+                <input id="start-time" type="time" name="startTime" />
+              </div>
+
+              <div>
+                <label for="end-time">End time</label>
+                <input id="end-time" type="time" name="endTime" />
+              </div>
+
+            </div> -->
+            <div id="error-message"></div>
+            <button id="add-room-btn" type="submit">Add room</button>
+          </form>
         </div>
       </div>
 
-      <div
-        class="container rooms-control animate__animated animate__fadeIn"
-      ></div>
+      <!------------------------------------------------>
+
+      <div class="top-content">
+        <h1 class="logo">Thermostat</h1>
+        <select id="rooms"></select>
+      </div>
+      <!-- Interior card -->
+      <div class="room">
+        <div class="text">
+          <h3 class="room-name">Living Room</h3>
+          <p class="currentTemp">27°</p>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="temperature">
+          <svg class="point" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="22" cy="22" r="19.5" fill="#515155" stroke="white" stroke-width="5" />
+            <circle cx="21.5" cy="21.5" r="9.5" fill="#FFD7A8" />
+          </svg>
+
+          <div class="info">
+            <p>Current Temp</p>
+            <h1 id="temp"></h1>
+          </div>
+        </div>
+
+        <div class="controls">
+          <p>Set Temperature</p>
+          <div class="buttons">
+            <button id="reduce">
+              <ion-icon size="large" name="remove-outline"></ion-icon>
+            </button>
+            <button id="increase">
+              <ion-icon size="large" name="add-outline"></ion-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="default-settings">
+          <button id="cool">
+            <ion-icon size="large" name="snow-outline"></ion-icon>
+            Cool
+          </button>
+          <button id="warm">
+            <ion-icon size="large" name="leaf"></ion-icon>
+            warm
+          </button>
+        </div>
+
+        <div class="configure">
+          <button id="newPreset">
+            <ion-icon name="cog"></ion-icon>Configure Presets
+          </button>
+        </div>
+
+        <div class="inputs hidden">
+          <input id="coolInput" type="number" min="10" max="24" placeholder="Cool" />
+          <input id="warmInput" type="number" min="25" max="32" placeholder="Warm" />
+          <button id="save">Save</button>
+          <button id="close"><ion-icon name="close"></ion-icon></button>
+
+          <span class="error"></span>
+        </div>
+      </div>
+
+      <div class="btn-section">
+        <button id="show_modal">Add room</button>
+      </div>
+
     </div>
 
-    <!-- Ionicons -->
-    <script
-      type="module"
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-    ></script>
-    <script
-      nomodule
-      src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-    ></script>
-  </body>
+    <div class="container rooms-control animate__animated animate__fadeIn"></div>
+  </div>
+
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+
 </html>

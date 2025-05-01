@@ -201,11 +201,14 @@ setInitialOverlay();
 
 document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
 // Add new options from rooms array
-rooms.forEach((room) => {
+function addOption(room) {
   const option = document.createElement("option");
   option.value = room.name;
   option.textContent = room.name;
   roomSelect.appendChild(option);
+}
+rooms.forEach((room) => {
+  addOption(room);
 });
 
 // Set current temperature to currently selected room
@@ -234,7 +237,16 @@ roomSelect.addEventListener("change", function () {
 
 // Set preset temperatures
 const defaultSettings = document.querySelector(".default-settings");
-defaultSettings.addEventListener("click", function (e) {});
+defaultSettings.addEventListener("click", function (e) {
+  const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
+  if (e.target.id === "cool") {
+    room.setCurrTemp(room.coldPreset);
+    setSelectedRoom(selectedRoom);
+  } else {
+    room.setCurrTemp(room.warmPreset);
+    setSelectedRoom(selectedRoom);
+  }
+});
 
 // Increase and decrease temperature
 document.getElementById("increase").addEventListener("click", () => {
@@ -330,7 +342,148 @@ document.getElementById("save").addEventListener("click", () => {
   }
 });
 
+//add rooms -- edited and added by me
+
+//set span of custom file upload to the name of file
+const inputFile = document.getElementById("file-input");
+let fileName = document.getElementById("file-name");
+inputFile.addEventListener("change", (e) => {
+  fileName.textContent = e.target.files[0].name;
+});
+
+//to manage state of modal and turn all AC button
+function stateOfElement(initialState = false) {
+  let state = initialState;
+  return {
+    toggle: function () {
+      state = !state;
+      return state;
+    },
+    get: function () {
+      return state;
+    },
+  };
+}
+//set initial state of modal
+const modalState = stateOfElement(false);
+const modalOverlay = document.getElementById("modal-container");
+
+//show modal when add room btn is clicked
+document.getElementById("show_modal").addEventListener("click", () => {
+  const isModalVisible = modalState.toggle();
+
+  if (isModalVisible) {
+    modalOverlay.classList.remove("hidden");
+    modalOverlay.classList.add("overlay");
+  }
+});
+
+//close modal when close button is clicked
+document.getElementById("close-modal").addEventListener("click", () => {
+  const isModalVisible = modalState.toggle();
+  if (!isModalVisible) {
+    modalOverlay.classList.add("hidden");
+    modalOverlay.classList.remove("overlay");
+  }
+});
+
+//close modal when overlay is clicked
+modalOverlay.addEventListener("click", () => {
+  const isModalVisible = modalState.toggle();
+  if (!isModalVisible) {
+    modalOverlay.classList.add("hidden");
+    modalOverlay.classList.remove("overlay");
+  }
+});
+
+document.getElementById("modal").addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+//validates form
+function validateForm(newRoomFormData) {
+  if (!newRoomFormData.name) {
+    return { isValid: false, message: "Room name is invalid" };
+  }
+  if (!newRoomFormData.image) {
+    return { isValid: false, message: "Please upload an image" };
+  }
+  if (!newRoomFormData.currTemp) {
+    return { isValid: false, message: "Please set the current temperature" };
+  } else if (newRoomFormData.currTemp < 10 || newRoomFormData.currRoom > 32) {
+    return {
+      isValid: false,
+      message: "Temperature range should be between (10° - 32°) inclusive",
+    };
+  }
+  if (!newRoomFormData.coldPreset) {
+    return { isValid: false, message: "Please set a coldPreset value" };
+  }
+  if (!newRoomFormData.warmPreset) {
+    return { isValid: false, message: "Please set a warmPreset value" };
+  }
+
+  return { isValid: true, message: "Room has been added successfully" };
+}
+
+//adds new room to array and dropdown
+document.getElementById("add-room-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const form = e.target;
+
+  const newRoom = {
+    name: form.name.value.trim(),
+    currTemp: parseFloat(form.currTemp.value),
+    coldPreset: parseFloat(form.coldPreset.value),
+    warmPreset: parseFloat(form.warmPreset.value),
+    // image: form.image.files[0] || "./assets/living-room.jpg",
+    image: form.image.files[0]
+      ? URL.createObjectURL(form.image.files[0])
+      : "./assets/living-room.jpg",
+    airConditionerOn: false,
+    startTime: "16:30",
+    endTime: "20:00",
+    setCurrTemp(temp) {
+      this.currTemp = temp;
+    },
+
+    setColdPreset(newCold) {
+      this.coldPreset = newCold;
+    },
+
+    setWarmPreset(newWarm) {
+      this.warmPreset = newWarm;
+    },
+
+    decreaseTemp() {
+      this.currTemp--;
+    },
+
+    increaseTemp() {
+      this.currTemp++;
+    },
+    toggleAircon() {
+      this.airConditionerOn
+        ? (this.airConditionerOn = false)
+        : (this.airConditionerOn = true);
+    },
+  };
+
+  const { isValid, message } = validateForm(newRoom);
+  if (isValid) {
+    rooms.push(newRoom);
+    document.getElementById("add-room-btn").textContent = "Submitted";
+    document.getElementById("error-message").style.color = "green";
+    addOption(newRoom);
+  }
+  document.getElementById("error-message").textContent = message;
+});
+
 // Rooms Control
+
+//set state of all ACs
+const turnACsBtnState = stateOfElement();
+
 // Generate rooms
 const generateRooms = () => {
   const roomsControlContainer = document.querySelector(".rooms-control");
@@ -360,6 +513,27 @@ const generateRooms = () => {
   });
 
   roomsControlContainer.innerHTML = roomsHTML;
+
+  //turn all ACs on
+  if (roomsControlContainer) {
+    let areACsOn = turnACsBtnState.get();
+    const turnACsOn = document.createElement("div");
+    const OnBtn = document.createElement("button");
+    OnBtn.textContent = `Turn ACs ${areACsOn ? "off" : "On"}`;
+    OnBtn.classList.add("turn-on-btn");
+    turnACsOn.classList.add("btn-section");
+
+    turnACsOn.appendChild(OnBtn);
+    document.querySelector(".rooms-control").appendChild(turnACsOn);
+
+    OnBtn.addEventListener("click", () => {
+      rooms.forEach((room) => {
+        room.toggleAircon();
+      });
+      areACsOn = turnACsBtnState.toggle();
+      generateRooms();
+    });
+  }
 };
 const displayTime = (room) => {
   return `
