@@ -35,7 +35,7 @@
 
           </div>
 
-          <form action="" method="post">
+          <form id="add-room-form" action="" method="post">
 
             <div class="room-data">
               <label for="room-name">Room name</label>
@@ -56,13 +56,13 @@
 
             <div class="room-data">
               <label for="curr-temp">Current Temperature</label>
-              <input id="curr-temp" type="number" min="10" max="22" placeholder="eg. 25°" name="currTemp" />
+              <input id="curr-temp" type="number" min="10" max="32" placeholder="eg. 25°" name="currTemp" />
             </div>
 
             <div class="room-data row-display">
               <div>
                 <label for="coldPreset">Cold Preset</label>
-                <input id="coldPreset" type="number" min="10" max="22" placeholder="Cool" name="coldPreset" />
+                <input id="coldPreset" type="number" min="10" max="24" placeholder="Cool" name="coldPreset" />
               </div>
 
               <div>
@@ -72,7 +72,7 @@
 
             </div>
 
-            <div class="room-data row-display">
+            <!-- <div class="room-data row-display">
               <div>
                 <label for="start-time">Start time</label>
                 <input id="start-time" type="time" name="startTime" />
@@ -83,12 +83,14 @@
                 <input id="end-time" type="time" name="endTime" />
               </div>
 
-            </div>
-
-            <button id="add-room-btn">Add room</button>
+            </div> -->
+            <div id="error-message"></div>
+            <button id="add-room-btn" type="submit">Add room</button>
           </form>
         </div>
       </div>
+
+      <!------------------------------------------------>
 
       <div class="top-content">
         <h1 class="logo">Thermostat</h1>
@@ -152,7 +154,11 @@
           <span class="error"></span>
         </div>
       </div>
-      <button id="add_room">Add room</button>
+
+      <div class="add-room-btn-section">
+        <button id="show_modal">Add room</button>
+      </div>
+
     </div>
 
     <div class="container rooms-control animate__animated animate__fadeIn"></div>

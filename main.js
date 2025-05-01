@@ -201,11 +201,14 @@ setInitialOverlay();
 
 document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
 // Add new options from rooms array
-rooms.forEach((room) => {
+function addOption(room) {
   const option = document.createElement("option");
   option.value = room.name;
   option.textContent = room.name;
   roomSelect.appendChild(option);
+}
+rooms.forEach((room) => {
+  addOption(room);
 });
 
 // Set current temperature to currently selected room
@@ -365,16 +368,114 @@ function stateOfElement(initialState = false) {
 const modalState = stateOfElement(false);
 const modalOverlay = document.getElementById("modal-container");
 
-document.getElementById("add_room").addEventListener("click", () => {
+//show modal when add room btn is clicked
+document.getElementById("show_modal").addEventListener("click", () => {
   const isModalVisible = modalState.toggle();
 
   if (isModalVisible) {
     modalOverlay.classList.remove("hidden");
-    modalOverlay.classList.add("visible", "overlay");
-  } else {
-    modalOverlay.classList.add("hidden");
-    modalOverlay.classList.remove("visible", "overlay");
+    modalOverlay.classList.add("overlay");
   }
+});
+
+//close modal when close button is clicked
+document.getElementById("close-modal").addEventListener("click", () => {
+  const isModalVisible = modalState.toggle();
+  if (!isModalVisible) {
+    modalOverlay.classList.add("hidden");
+    modalOverlay.classList.remove("overlay");
+  }
+});
+
+//close modal when overlay is clicked
+modalOverlay.addEventListener("click", () => {
+  const isModalVisible = modalState.toggle();
+  if (!isModalVisible) {
+    modalOverlay.classList.add("hidden");
+    modalOverlay.classList.remove("overlay");
+  }
+});
+
+document.getElementById("modal").addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+//adds new room to array
+
+//validates form
+
+function validateForm(newRoomFormData) {
+  if (!newRoomFormData.name) {
+    return { isValid: false, message: "Room name is invalid" };
+  }
+  if (!newRoomFormData.image) {
+    return { isValid: false, message: "Please upload an image" };
+  }
+  if (!newRoomFormData.currTemp) {
+    return { isValid: false, message: "Please set the current temperature" };
+  } else if (newRoomFormData.currTemp < 10 || newRoomFormData.currRoom > 32) {
+    return {
+      isValid: false,
+      message: "Temperature range should be between (10° - 32°) inclusive",
+    };
+  }
+  if (!newRoomFormData.coldPreset) {
+    return { isValid: false, message: "Please set a coldPreset value" };
+  }
+  if (!newRoomFormData.warmPreset) {
+    return { isValid: false, message: "Please set a warmPreset value" };
+  }
+
+  return { isValid: true, message: "Room has been added successfully" };
+}
+
+document.getElementById("add-room-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const form = e.target;
+
+  const newRoom = {
+    name: form.name.value.trim(),
+    currTemp: parseFloat(form.currTemp.value),
+    coldPreset: parseFloat(form.coldPreset.value),
+    warmPreset: parseFloat(form.warmPreset.value),
+    image: form.image.files[0] || "./assets/living-room.jpg",
+    airConditionerOn: false,
+    startTime: "16:30",
+    endTime: "20:00",
+    setCurrTemp(temp) {
+      this.currTemp = temp;
+    },
+
+    setColdPreset(newCold) {
+      this.coldPreset = newCold;
+    },
+
+    setWarmPreset(newWarm) {
+      this.warmPreset = newWarm;
+    },
+
+    decreaseTemp() {
+      this.currTemp--;
+    },
+
+    increaseTemp() {
+      this.currTemp++;
+    },
+    toggleAircon() {
+      this.airConditionerOn
+        ? (this.airConditionerOn = false)
+        : (this.airConditionerOn = true);
+    },
+  };
+
+  const { isValid, message } = validateForm(newRoom);
+  if (isValid) {
+    rooms.push(newRoom);
+    document.getElementById("add-room-btn").textContent = "Submitted";
+    document.getElementById("error-message").style.color = "green";
+    addOption(newRoom);
+  }
+  document.getElementById("error-message").textContent = message;
 });
 
 // Rooms Control
