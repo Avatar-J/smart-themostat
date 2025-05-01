@@ -400,10 +400,7 @@ document.getElementById("modal").addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
-//adds new room to array
-
 //validates form
-
 function validateForm(newRoomFormData) {
   if (!newRoomFormData.name) {
     return { isValid: false, message: "Room name is invalid" };
@@ -429,6 +426,7 @@ function validateForm(newRoomFormData) {
   return { isValid: true, message: "Room has been added successfully" };
 }
 
+//adds new room to array and dropdown
 document.getElementById("add-room-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const form = e.target;
@@ -438,7 +436,10 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
     currTemp: parseFloat(form.currTemp.value),
     coldPreset: parseFloat(form.coldPreset.value),
     warmPreset: parseFloat(form.warmPreset.value),
-    image: form.image.files[0] || "./assets/living-room.jpg",
+    // image: form.image.files[0] || "./assets/living-room.jpg",
+    image: form.image.files[0]
+      ? URL.createObjectURL(form.image.files[0])
+      : "./assets/living-room.jpg",
     airConditionerOn: false,
     startTime: "16:30",
     endTime: "20:00",
