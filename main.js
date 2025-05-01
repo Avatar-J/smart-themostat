@@ -340,15 +340,41 @@ document.getElementById("save").addEventListener("click", () => {
 });
 
 //add rooms -- edited and added by me
+
+//set span of custom file upload to the name of file
 const inputFile = document.getElementById("file-input");
 let fileName = document.getElementById("file-name");
 inputFile.addEventListener("change", (e) => {
   fileName.textContent = e.target.files[0].name;
 });
 
+//to manage state of modal
+function stateOfElement(initialState = false) {
+  let state = initialState;
+  return {
+    toggle: function () {
+      state = !state;
+      return state;
+    },
+    get: function () {
+      return state;
+    },
+  };
+}
+//set initial state of modal
+const modalState = stateOfElement(false);
+const modalOverlay = document.getElementById("modal-container");
+
 document.getElementById("add_room").addEventListener("click", () => {
-  const modalOverlay = document.getElementById("overlay");
-  modalOverlay.classList.remove("hidden");
+  const isModalVisible = modalState.toggle();
+
+  if (isModalVisible) {
+    modalOverlay.classList.remove("hidden");
+    modalOverlay.classList.add("visible", "overlay");
+  } else {
+    modalOverlay.classList.add("hidden");
+    modalOverlay.classList.remove("visible", "overlay");
+  }
 });
 
 // Rooms Control

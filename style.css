@@ -390,7 +390,7 @@ svg.point {
   z-index: 1;
 }
 
-#overlay {
+.overlay {
   position: absolute;
   z-index: 999;
   background-color: rgb(0, 0, 0, 0.7);
@@ -398,9 +398,13 @@ svg.point {
   left: 0;
   right: 0;
   bottom: 0;
+
+
+}
+
+.visible {
   display: grid;
   place-items: center;
-
 }
 
 #modal {
