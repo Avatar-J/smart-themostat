@@ -513,6 +513,7 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
     document.getElementById("add-room-btn").textContent = "Submitted";
     document.getElementById("error-message").style.color = "green";
     addOption(newRoom);
+    generateRooms();
   }
   document.getElementById("error-message").textContent = message;
 });
@@ -530,6 +531,7 @@ const generateRooms = () => {
 
   rooms.forEach((room) => {
     console.log("current temp:", room.currTemp);
+
     roomsHTML += `
     <div class="room-control" id="${room.name}">
           <div class="top">
@@ -537,7 +539,7 @@ const generateRooms = () => {
 
             <div class="ac-control">
 
-              <button class="timer">
+              <button id="${room.name}" class="timer">
                 <ion-icon name="alarm"></ion-icon>
               </button>
               
@@ -576,6 +578,7 @@ const generateRooms = () => {
     turnACsOn.appendChild(OnBtn);
     document.querySelector(".rooms-control").appendChild(turnACsOn);
 
+    //turn on all AC buttons
     OnBtn.addEventListener("click", () => {
       rooms.forEach((room) => {
         room.toggleAircon();
@@ -584,12 +587,14 @@ const generateRooms = () => {
       generateRooms();
     });
 
+    //add modal to all rooms
     document.querySelectorAll(".timer").forEach((el) => {
       const timerModal = stateOfElement();
       el.addEventListener("click", (e) => {
         e.stopPropagation();
+        const roomName = e.target.id;
 
-        showTimerModal(timerModal);
+        showTimerModal(timerModal, roomName);
         const isModalVisible = timerModal.toggle();
         if (isModalVisible) {
           timerModalOverlay.classList.remove("hidden");
@@ -663,7 +668,7 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
 
 const timerModalOverlay = document.createElement("div");
 
-function showTimerModal(timerModal) {
+function showTimerModal(timerModal, roomName) {
   timerModalOverlay.classList.add("hidden");
 
   const modalHTML = `
@@ -703,17 +708,68 @@ function showTimerModal(timerModal) {
   });
 
   //set timer
-  document.getElementById("add-timer-btn").addEventListener("submit", (e) => {
+
+  document.getElementById("add-timer-form").addEventListener("submit", (e) => {
     e.preventDefault();
-    const room = rooms.find(
-      (room) => room.name === e.target.parentNode.parentNode.parentNode.id
-    );
+
+    const room = rooms.find((room) => room.name === roomName);
+
     const form = e.target;
-    if (form.name.startTime) {
-      console.log(form.name.startTime);
+
+    if (form.startTime.value) {
+      room.setStartTime(form.startTime.value);
+      console.log("timer:", room.startTime);
     }
-    if (form.name.endTime) {
-      console.log(form.name.endTime);
+    if (form.endTime.value) {
+      room.setEndTime(form.startTime.value);
+    }
+
+    console.log(room.startTime, room.end);
+    const isModalVisible = timerModal.toggle();
+    if (!isModalVisible) {
+      timerModalOverlay.classList.add("hidden");
+      timerModalOverlay.classList.remove("overlay");
     }
   });
 }
+
+function setRoomTimer(startTime, endTime, room) {
+  //create new date object
+  const now = new Date();
+
+  //convert time into hours and min
+  const [startHour, startMin] = startTime.split(":").map(Number);
+  const [endHour, endMin] = endTime.split(":").map(Number);
+
+  // Create Date objects for today
+  const startDate = new Date(now);
+  startDate.setHours(startHour, startMin, 0, 0);
+
+  const endDate = new Date(now);
+  endDate.setHours(endHour, endMin, 0, 0);
+
+  //schedule for tomorrow, if it crosses
+  if (startDate < now) startDate.setDate(startDate.getDate() + 1);
+  if (endDate < now || endDate < startDate)
+    endDate.setDate(endDate.getDate() + 1);
+
+  const secondsStart = startDate - now;
+  const secondsEnd = endDate - now;
+
+  setTimeout(() => {
+    room.toggleAircon();
+    generateRooms();
+    setTimeout(() => {
+      console.log("turn ac off");
+      room.toggleAircon();
+      generateRooms();
+    }, secondsEnd - secondsStart);
+  }, secondsStart);
+}
+
+function setAutomaticTimer() {
+  rooms.forEach((room) => {
+    setRoomTimer(room.startTime, room.endTime, room);
+  });
+}
+setAutomaticTimer();
