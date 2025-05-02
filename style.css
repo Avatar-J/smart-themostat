@@ -177,7 +177,8 @@ svg.point {
 }
 
 .inputs input,
-#modal input {
+#modal input,
+#timer-modal input {
   padding: 8px 5px;
   width: 100px;
   border: none;
@@ -187,7 +188,8 @@ svg.point {
 }
 
 .inputs #save,
-#add-room-btn {
+#add-room-btn,
+#add-timer-btn {
   border: none;
   background-color: var(--cool-blue);
   color: #ffffff;
@@ -198,7 +200,8 @@ svg.point {
 }
 
 .inputs #close,
-#close-modal {
+#close-modal,
+#close-timer-modal {
   border: none;
   background: none;
   font-size: 18px;
@@ -386,7 +389,7 @@ svg.point {
 }
 
 /* added styling by me */
-.container:nth-child(1) {
+.container {
   position: relative;
   z-index: 1;
 }
@@ -408,9 +411,10 @@ svg.point {
   place-items: center;
 }
 
-#modal {
+#modal,
+#timer-modal {
   width: 350px;
-  min-height: 400px;
+  min-height: 200px;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
@@ -436,14 +440,16 @@ svg.point {
   width: 80%;
 }
 
-#close-modal {
+#close-modal,
+#close-timer-modal {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 5px;
 }
 
-#close-modal:hover {
+#close-modal:hover,
+#close-timer-modal:hover {
   background-color: #eaeaeb;
 }
 
@@ -478,7 +484,8 @@ svg.point {
   margin-top: 5px;
 }
 
-#add-room-btn {
+#add-room-btn,
+#add-timer-btn {
   margin: 20px 10px 0 0;
   width: 100%;
 }
@@ -504,6 +511,37 @@ svg.point {
   margin-top: 20px;
 }
 
+.ac-control {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.timer {
+  padding: 5px;
+}
+
+#add-timer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  justify-content: center;
+  align-items: center;
+}
+
+#add-timer-form div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#timer-modal input {
+  width: 200px;
+}
+
+#add-timer-btn {
+  width: 200px;
+}
 
 @media only screen and (max-width: 470px) {
   .container {

@@ -34,6 +34,13 @@ const rooms = [
         ? (this.airConditionerOn = false)
         : (this.airConditionerOn = true);
     },
+    setStartTime(time) {
+      this.startTime = time;
+    },
+
+    setEndTime(time) {
+      this.endTime = time;
+    },
   },
   {
     name: "Kitchen",
@@ -68,6 +75,13 @@ const rooms = [
       this.airConditionerOn
         ? (this.airConditionerOn = false)
         : (this.airConditionerOn = true);
+    },
+    setStartTime(time) {
+      this.startTime = time;
+    },
+
+    setEndTime(time) {
+      this.endTime = time;
     },
   },
   {
@@ -104,6 +118,13 @@ const rooms = [
         ? (this.airConditionerOn = false)
         : (this.airConditionerOn = true);
     },
+    setStartTime(time) {
+      this.startTime = time;
+    },
+
+    setEndTime(time) {
+      this.endTime = time;
+    },
   },
   {
     name: "Bedroom",
@@ -138,6 +159,13 @@ const rooms = [
       this.airConditionerOn
         ? (this.airConditionerOn = false)
         : (this.airConditionerOn = true);
+    },
+    setStartTime(time) {
+      this.startTime = time;
+    },
+
+    setEndTime(time) {
+      this.endTime = time;
     },
   },
 ];
@@ -470,6 +498,13 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
         ? (this.airConditionerOn = false)
         : (this.airConditionerOn = true);
     },
+    setStartTime(time) {
+      this.startTime = time;
+    },
+
+    setEndTime(time) {
+      this.endTime = time;
+    },
   };
 
   const { isValid, message } = validateForm(newRoom);
@@ -499,11 +534,21 @@ const generateRooms = () => {
     <div class="room-control" id="${room.name}">
           <div class="top">
             <h3 class="room-name">${room.name} - ${room.currTemp}°</h3>
-            <button class="switch">
-              <ion-icon name="power-outline" class="${
-                room.airConditionerOn ? "powerOn" : ""
-              }"></ion-icon>
-            </button>
+
+            <div class="ac-control">
+
+              <button class="timer">
+                <ion-icon name="alarm"></ion-icon>
+              </button>
+              
+              <button class="switch">
+                <ion-icon name="power-outline" class="${
+                  room.airConditionerOn ? "powerOn" : ""
+                }"></ion-icon>
+              </button>
+            
+            </div>
+            
           </div>
 
           ${displayTime(room)}
@@ -537,6 +582,20 @@ const generateRooms = () => {
       });
       areACsOn = turnACsBtnState.toggle();
       generateRooms();
+    });
+
+    document.querySelectorAll(".timer").forEach((el) => {
+      const timerModal = stateOfElement();
+      el.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        showTimerModal(timerModal);
+        const isModalVisible = timerModal.toggle();
+        if (isModalVisible) {
+          timerModalOverlay.classList.remove("hidden");
+          timerModalOverlay.classList.add("overlay");
+        }
+      });
     });
   }
 };
@@ -588,7 +647,7 @@ generateRooms();
 document.querySelector(".rooms-control").addEventListener("click", (e) => {
   if (e.target.classList.contains("switch")) {
     const room = rooms.find(
-      (room) => room.name === e.target.parentNode.parentNode.id
+      (room) => room.name === e.target.parentNode.parentNode.parentNode.id
     );
     room.toggleAircon();
     generateRooms();
@@ -598,3 +657,63 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
     setSelectedRoom(e.target.parentNode.parentNode.id);
   }
 });
+
+//for timer of AC
+//set state of timer modal
+
+const timerModalOverlay = document.createElement("div");
+
+function showTimerModal(timerModal) {
+  timerModalOverlay.classList.add("hidden");
+
+  const modalHTML = `
+  <div id="timer-modal">
+          <div class="modal-header">
+            <h1 class="add-room-title">Set start and stop time</h1>
+            <button id="close-timer-modal"><ion-icon name="close"></ion-icon></button>
+
+          </div>
+          <form id="add-timer-form" action="" method="post">
+              <div>
+                <label for="start-time">Start time</label>
+                <input id="start-time" type="time" name="startTime" />
+              </div>
+
+              <div>
+                <label for="end-time">End time</label>
+                <input id="end-time" type="time" name="endTime" />
+              </div>
+
+              <button id="add-timer-btn" type="submit">Set timer</button>
+          </form>
+  </div>
+  `;
+
+  timerModalOverlay.innerHTML = modalHTML;
+
+  document.querySelector(".rooms-control").appendChild(timerModalOverlay);
+
+  //add event to close timer modal
+  document.getElementById("close-timer-modal").addEventListener("click", () => {
+    const isModalVisible = timerModal.toggle();
+    if (!isModalVisible) {
+      timerModalOverlay.classList.add("hidden");
+      timerModalOverlay.classList.remove("overlay");
+    }
+  });
+
+  //set timer
+  document.getElementById("add-timer-btn").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const room = rooms.find(
+      (room) => room.name === e.target.parentNode.parentNode.parentNode.id
+    );
+    const form = e.target;
+    if (form.name.startTime) {
+      console.log(form.name.startTime);
+    }
+    if (form.name.endTime) {
+      console.log(form.name.endTime);
+    }
+  });
+}
