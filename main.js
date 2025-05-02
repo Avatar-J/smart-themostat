@@ -592,8 +592,12 @@ const generateRooms = () => {
       const timerModal = stateOfElement();
       el.addEventListener("click", (e) => {
         e.stopPropagation();
-        const roomName = e.target.id;
-
+        let roomName;
+        if (e.target.classList.contains("timer")) {
+          roomName = e.target.id;
+        } else {
+          roomName = e.target.parentNode.id;
+        }
         showTimerModal(timerModal, roomName);
         const isModalVisible = timerModal.toggle();
         if (isModalVisible) {
@@ -669,6 +673,7 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
 const timerModalOverlay = document.createElement("div");
 
 function showTimerModal(timerModal, roomName) {
+  console.log(roomName);
   timerModalOverlay.classList.add("hidden");
 
   const modalHTML = `
@@ -713,18 +718,19 @@ function showTimerModal(timerModal, roomName) {
     e.preventDefault();
 
     const room = rooms.find((room) => room.name === roomName);
-
+    console.log(room);
     const form = e.target;
 
+    console.log(form.startTime.value, form.endTime.value);
+
     if (form.startTime.value) {
-      room.setStartTime(form.startTime.value);
-      console.log("timer:", room.startTime);
+      room.startTime = form.startTime.value;
     }
     if (form.endTime.value) {
-      room.setEndTime(form.startTime.value);
+      room.endTime = form.endTime.value;
     }
-
-    console.log(room.startTime, room.end);
+    generateRooms();
+    setAutomaticTimer();
     const isModalVisible = timerModal.toggle();
     if (!isModalVisible) {
       timerModalOverlay.classList.add("hidden");
