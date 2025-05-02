@@ -593,3 +593,8 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
     setSelectedRoom(e.target.parentNode.parentNode.id);
   }
 });
+module.exports = {
+  calculatePointPosition,
+  setOverlay,
+  setIndicatorPoint,
+};
