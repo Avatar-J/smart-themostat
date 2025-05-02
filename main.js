@@ -217,6 +217,8 @@ const setSelectedRoom = (selectedRoom) => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   setIndicatorPoint(room.currTemp);
 
+  console.log(room);
+
   //   set the current stats to current room temperature
   currentTemp.textContent = `${room.currTemp}°`;
 
@@ -256,6 +258,7 @@ document.getElementById("increase").addEventListener("click", () => {
   if (room.currTemp < 32) {
     room.increaseTemp();
   }
+  console.log("updated current temp", room.currTemp);
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
 
@@ -276,7 +279,7 @@ document.getElementById("reduce").addEventListener("click", () => {
   if (room.currTemp > 10) {
     room.decreaseTemp();
   }
-
+  console.log("updated current temp", room.currTemp);
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
 
@@ -485,11 +488,13 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
 const turnACsBtnState = stateOfElement();
 
 // Generate rooms
+
 const generateRooms = () => {
   const roomsControlContainer = document.querySelector(".rooms-control");
   let roomsHTML = "";
 
   rooms.forEach((room) => {
+    console.log("current temp:", room.currTemp);
     roomsHTML += `
     <div class="room-control" id="${room.name}">
           <div class="top">
