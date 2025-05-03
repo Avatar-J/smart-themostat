@@ -228,13 +228,15 @@ currentTemp.textContent = `${rooms[0].currTemp}°`;
 setInitialOverlay();
 
 document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
-// Add new options from rooms array
+
+//function to create and set an option element
 function addOption(room) {
   const option = document.createElement("option");
   option.value = room.name;
   option.textContent = room.name;
   roomSelect.appendChild(option);
 }
+// Add new options from rooms array
 rooms.forEach((room) => {
   addOption(room);
 });
@@ -245,6 +247,7 @@ const setSelectedRoom = (selectedRoom) => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   setIndicatorPoint(room.currTemp);
 
+  //test to verify room is being selected
   console.log(room);
 
   //   set the current stats to current room temperature
@@ -259,6 +262,7 @@ const setSelectedRoom = (selectedRoom) => {
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
 };
 
+//listen for an event on your option in the dropdown and set selected room
 roomSelect.addEventListener("change", function () {
   selectedRoom = this.value;
 
@@ -271,22 +275,25 @@ defaultSettings.addEventListener("click", function (e) {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   if (e.target.id === "cool") {
     room.setCurrTemp(room.coldPreset);
-    setSelectedRoom(selectedRoom);
+    updateAll(selectedRoom);
   } else {
     room.setCurrTemp(room.warmPreset);
-    setSelectedRoom(selectedRoom);
+    updateAll(selectedRoom);
   }
 });
 
 // Increase and decrease temperature
 document.getElementById("increase").addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  // const increaseRoomTemperature = room.increaseTemp;
+  // const increaseRoomTemperature = room.increaseTemp.bind();
 
   if (room.currTemp < 32) {
     room.increaseTemp();
   }
+
+  //test to verify that temperature increased
   console.log("updated current temp", room.currTemp);
+
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
 
@@ -302,12 +309,15 @@ document.getElementById("increase").addEventListener("click", () => {
 
 document.getElementById("reduce").addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  // const decreaseRoomTemperature = room.decreaseTemp;
+  // const decreaseRoomTemperature = room.decreaseTemp.bind();
 
   if (room.currTemp > 10) {
     room.decreaseTemp();
   }
+
+  //test to verify temperature reduced
   console.log("updated current temp", room.currTemp);
+
   setIndicatorPoint(room.currTemp);
   currentTemp.textContent = `${room.currTemp}°`;
 
@@ -356,7 +366,6 @@ document.getElementById("save").addEventListener("click", () => {
     }
     // Validation passed
     // Set current room's presets
-
     const currRoom = rooms.find((room) => room.name === selectedRoom);
 
     if (coolInput.value >= 10 && coolInput.value < 25) {
@@ -382,7 +391,7 @@ inputFile.addEventListener("change", (e) => {
   fileName.textContent = e.target.files[0].name;
 });
 
-//to manage state of modal and turn all AC button
+//to manage state of modals and buttons i added
 function stateOfElement(initialState = false) {
   let state = initialState;
   return {
@@ -399,39 +408,41 @@ function stateOfElement(initialState = false) {
 const modalState = stateOfElement(false);
 const modalOverlay = document.getElementById("modal-container");
 
-//show modal when add room btn is clicked
-document.getElementById("show_modal").addEventListener("click", () => {
-  const isModalVisible = modalState.toggle();
-
+//function to hide or show modals
+function showHideModal(isModalVisible) {
   if (isModalVisible) {
     modalOverlay.classList.remove("hidden");
     modalOverlay.classList.add("overlay");
+  } else {
+    modalOverlay.classList.add("hidden");
+    modalOverlay.classList.remove("overlay");
   }
+}
+
+//show modal when add room btn is clicked
+document.getElementById("show_modal").addEventListener("click", () => {
+  const isModalVisible = modalState.toggle();
+  showHideModal(isModalVisible);
 });
 
-//close modal when close button is clicked
+//close modal when add room close button is clicked
 document.getElementById("close-modal").addEventListener("click", () => {
   const isModalVisible = modalState.toggle();
-  if (!isModalVisible) {
-    modalOverlay.classList.add("hidden");
-    modalOverlay.classList.remove("overlay");
-  }
+  showHideModal(isModalVisible);
 });
 
-//close modal when overlay is clicked
+//close modal when overlay of add room is clicked
 modalOverlay.addEventListener("click", () => {
   const isModalVisible = modalState.toggle();
-  if (!isModalVisible) {
-    modalOverlay.classList.add("hidden");
-    modalOverlay.classList.remove("overlay");
-  }
+  showHideModal(isModalVisible);
 });
 
+//stop event propagation when other elements apart from the overlay is clicked
 document.getElementById("modal").addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
-//validates form
+//validates add room data from form
 function validateForm(newRoomFormData) {
   if (!newRoomFormData.name) {
     return { isValid: false, message: "Room name is invalid" };
@@ -457,11 +468,12 @@ function validateForm(newRoomFormData) {
   return { isValid: true, message: "Room has been added successfully" };
 }
 
-//adds new room to array and dropdown
+//adds new room to array and dropdown when submitted
 document.getElementById("add-room-form").addEventListener("submit", (e) => {
   e.preventDefault();
   const form = e.target;
 
+  //create a new object
   const newRoom = {
     name: form.name.value.trim(),
     currTemp: parseFloat(form.currTemp.value),
@@ -507,20 +519,34 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
     },
   };
 
+  //check validity
   const { isValid, message } = validateForm(newRoom);
+
+  //if valid, add to dropdown and update UI
   if (isValid) {
     rooms.push(newRoom);
+
+    //send feedback to user
     document.getElementById("add-room-btn").textContent = "Submitted";
     document.getElementById("error-message").style.color = "green";
+
+    //close modal after 1.5 seconds
+    setTimeout(() => {
+      const isModalVisible = modalState.toggle();
+      showHideModal(isModalVisible);
+    }, 1500);
+
+    //add to dropdown
     addOption(newRoom);
     generateRooms();
   }
+
   document.getElementById("error-message").textContent = message;
 });
 
 // Rooms Control
 
-//set state of all ACs
+//set initial state of Turn ACs On button
 const turnACsBtnState = stateOfElement();
 
 // Generate rooms
@@ -566,9 +592,10 @@ const generateRooms = () => {
 
   roomsControlContainer.innerHTML = roomsHTML;
 
-  //turn all ACs on
+  //show turn on ACs button and add event listener
   if (roomsControlContainer) {
     let areACsOn = turnACsBtnState.get();
+    //create the button
     const turnACsOn = document.createElement("div");
     const OnBtn = document.createElement("button");
     OnBtn.textContent = `Turn ACs ${areACsOn ? "off" : "On"}`;
@@ -578,7 +605,7 @@ const generateRooms = () => {
     turnACsOn.appendChild(OnBtn);
     document.querySelector(".rooms-control").appendChild(turnACsOn);
 
-    //turn on all AC buttons
+    //add event listener to ACs button
     OnBtn.addEventListener("click", () => {
       rooms.forEach((room) => {
         room.toggleAircon();
@@ -587,19 +614,22 @@ const generateRooms = () => {
       generateRooms();
     });
 
-    //add modal to all rooms
+    //add timer modals to all rooms
     document.querySelectorAll(".timer").forEach((el) => {
-      const timerModal = stateOfElement();
+      const timerModalState = stateOfElement();
+
       el.addEventListener("click", (e) => {
         e.stopPropagation();
+
         let roomName;
         if (e.target.classList.contains("timer")) {
           roomName = e.target.id;
         } else {
           roomName = e.target.parentNode.id;
         }
-        showTimerModal(timerModal, roomName);
-        const isModalVisible = timerModal.toggle();
+        showTimerModal(timerModalState, roomName);
+
+        const isModalVisible = timerModalState.toggle();
         if (isModalVisible) {
           timerModalOverlay.classList.remove("hidden");
           timerModalOverlay.classList.add("overlay");
@@ -669,11 +699,9 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
 
 //for timer of AC
 //set state of timer modal
-
 const timerModalOverlay = document.createElement("div");
 
-function showTimerModal(timerModal, roomName) {
-  console.log(roomName);
+function showTimerModal(timerModalState, roomName) {
   timerModalOverlay.classList.add("hidden");
 
   const modalHTML = `
@@ -705,7 +733,7 @@ function showTimerModal(timerModal, roomName) {
 
   //add event to close timer modal
   document.getElementById("close-timer-modal").addEventListener("click", () => {
-    const isModalVisible = timerModal.toggle();
+    const isModalVisible = timerModalState.toggle();
     if (!isModalVisible) {
       timerModalOverlay.classList.add("hidden");
       timerModalOverlay.classList.remove("overlay");
@@ -713,15 +741,11 @@ function showTimerModal(timerModal, roomName) {
   });
 
   //set timer
-
   document.getElementById("add-timer-form").addEventListener("submit", (e) => {
     e.preventDefault();
 
     const room = rooms.find((room) => room.name === roomName);
-    console.log(room);
     const form = e.target;
-
-    console.log(form.startTime.value, form.endTime.value);
 
     if (form.startTime.value) {
       room.startTime = form.startTime.value;
@@ -731,7 +755,7 @@ function showTimerModal(timerModal, roomName) {
     }
     generateRooms();
     setAutomaticTimer();
-    const isModalVisible = timerModal.toggle();
+    const isModalVisible = timerModalState.toggle();
     if (!isModalVisible) {
       timerModalOverlay.classList.add("hidden");
       timerModalOverlay.classList.remove("overlay");
@@ -740,7 +764,6 @@ function showTimerModal(timerModal, roomName) {
 }
 
 function setRoomTimer(startTime, endTime, room) {
-  //create new date object
   const now = new Date();
 
   //convert time into hours and min
@@ -763,10 +786,11 @@ function setRoomTimer(startTime, endTime, room) {
   const secondsEnd = endDate - now;
 
   setTimeout(() => {
+    //turn on ac
     room.toggleAircon();
     generateRooms();
     setTimeout(() => {
-      console.log("turn ac off");
+      //turn off ac
       room.toggleAircon();
       generateRooms();
     }, secondsEnd - secondsStart);
@@ -779,3 +803,8 @@ function setAutomaticTimer() {
   });
 }
 setAutomaticTimer();
+
+function updateAll(selectedRoom) {
+  setSelectedRoom(selectedRoom);
+  generateRooms();
+}
