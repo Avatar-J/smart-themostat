@@ -3,13 +3,19 @@
  */
 
 "use strict";
+jest.mock("../main.js", () => {
+  const originalModule = jest.requireActual("../main.js");
 
-const {
-  stateOfElement,
-  validateForm,
-  addOption,
-  setSelectedRoom,
-} = require("../utils.js");
+  return {
+    ...originalModule,
+    setIndicatorPoint: jest.fn(),
+    setOverlay: jest.fn(),
+  };
+});
+
+const { stateOfElement, validateForm, addOption } = require("../utils.js");
+const { setSelectedRoom } = require("../main.js");
+const { describe } = require("yargs");
 
 const mockRooms = [
   {
@@ -93,23 +99,27 @@ describe("add option to dropdown", () => {
 //       <div class="room-name"></div>
 //       <div class="currentTemp"></div>
 //       <div id="temp"></div>
+//       <div class="room"></div>
 //     `;
+
 //     global.rooms = mockRooms;
-//     global.setIndicatorPoint = jest.fn();
-//     global.setOverlay = jest.fn();
 //     global.currentTemp = document.getElementById("temp");
+
+//     // Clear mock calls
+//     setIndicatorPoint.mockClear();
+//     setOverlay.mockClear();
 //   });
 
 //   test("should update UI with currentTemp and room-name", () => {
-//     const currentTemp = document.getElementById("temp");
-
 //     setSelectedRoom("Living Room");
 
-//     expect(setIndicatorPoint).toHaveBeenCalledWith(24);
+//     expect(setIndicatorPoint).toHaveBeenCalledTimes(1);
+//     expect(setIndicatorPoint).toHaveBeenCalledWith(32);
+//     expect(setOverlay).toHaveBeenCalledTimes(1);
 //     expect(setOverlay).toHaveBeenCalledWith(mockRooms[0]);
-//     expect(currentTemp.textContent).toBe("24°");
+//     expect(currentTemp.textContent).toBe("32°");
 //     expect(document.querySelector(".room-name").innerText).toBe("Living Room");
-//     expect(document.querySelector(".currentTemp").innerText).toBe("24°");
+//     expect(document.querySelector(".currentTemp").innerText).toBe("32°");
 //   });
 // });
 
@@ -121,7 +131,7 @@ describe("add option to dropdown", () => {
 
 //   beforeEach(() => {
 //     global.rooms = mockRooms;
-//     global.selectedRoom = "Living Room";
+//     global.selectedRoom = mockRooms[0].name;
 
 //     document.body.innerHTML = `
 //         <input id="coolInput" type="number" />
@@ -130,7 +140,7 @@ describe("add option to dropdown", () => {
 //         <span class="error"></span>
 //     `;
 
-//     require("../utils.js");
+//     require("../main.js");
 
 //     saveBtn = document.getElementById("save");
 //     coolInput = document.getElementById("coolInput");
@@ -139,33 +149,32 @@ describe("add option to dropdown", () => {
 //   });
 
 //   test("should display error message if coolInput is invalid", () => {
-//     coolInput.value = 9;
-//     warmInput.value = 30;
+//     coolInput.value = "9";
+//     warmInput.value = "30";
 //     saveBtn.dispatchEvent(new Event("click"));
-//     expect(errorSpan.innerHTML).toContain(
-//       "Enter valid temperatures (10° - 32°)"
-//     );
+//     saveBtn.click();
+//     expect(errorSpan.innerText).toContain("Enter valid temperatures");
 //   });
 
-//   test("should display error message if warm input is invalid", () => {
-//     coolInput.value = 11;
-//     warmInput.value = 20;
-//     saveBtn.dispatchEvent(new Event("click"));
-//     expect(errorSpan.innerHTML).toContain(
-//       "Enter valid temperatures (10° - 32°)"
-//     );
-//   });
+// test("should display error message if warm input is invalid", () => {
+//   coolInput.value = 11;
+//   warmInput.value = 20;
+//   saveBtn.dispatchEvent(new Event("click"));
+//   expect(errorSpan.innerHTML).toContain(
+//     "Enter valid temperatures (10° - 32°)"
+//   );
+// });
 
-//   test("should call setColdPreset and setWarmPreset for valid inputs", () => {
-//     coolInput.value = "20";
-//     warmInput.value = "28";
+// test("should call setColdPreset and setWarmPreset for valid inputs", () => {
+//   coolInput.value = "20";
+//   warmInput.value = "28";
 
-//     saveBtn.dispatchEvent(new Event("click"));
+//   saveBtn.dispatchEvent(new Event("click"));
 
-//     const currRoom = rooms[0];
-//     // expect(currRoom.setColdPreset).toHaveBeenCalledWith("20");
-//     // expect(currRoom.setWarmPreset).toHaveBeenCalledWith("28");
-//     expect(coolInput.value).toBe("");
-//     expect(warmInput.value).toBe("");
-//   });
+//   const currRoom = rooms[0];
+//   // expect(currRoom.setColdPreset).toHaveBeenCalledWith("20");
+//   // expect(currRoom.setWarmPreset).toHaveBeenCalledWith("28");
+//   expect(coolInput.value).toBe("");
+//   expect(warmInput.value).toBe("");
+// });
 // });

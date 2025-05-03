@@ -49,57 +49,8 @@ function addOption(room) {
   roomSelect.appendChild(option);
 }
 
-const setSelectedRoom = (selectedRoom) => {
-  const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
-  setIndicatorPoint(room.currTemp);
-
-  //   set the current stats to current room temperature
-  currentTemp.textContent = `${room.currTemp}°`;
-
-  // Set the current room image
-  setOverlay(room);
-
-  // Set the current room name
-  document.querySelector(".room-name").innerText = selectedRoom;
-
-  document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
-};
-
-document.getElementById("save")?.addEventListener("click", () => {
-  const coolInput = document.getElementById("coolInput");
-  const warmInput = document.getElementById("warmInput");
-  const errorSpan = document.querySelector(".error");
-
-  if (coolInput.value && warmInput.value) {
-    // Validate the data
-    if (coolInput.value < 10 || coolInput.value > 25) {
-      errorSpan.style.display = "block";
-      errorSpan.innerText = "Enter valid temperatures (10° - 32°)";
-    }
-
-    if (warmInput.value < 25 || warmInput.value > 32) {
-      errorSpan.style.display = "block";
-      errorSpan.innerText = "Enter valid temperatures (10° - 32°)";
-    }
-    const currRoom = rooms.find((room) => room.name === selectedRoom);
-
-    if (coolInput.value >= 10 && coolInput.value < 25) {
-      errorSpan.style.display = "none";
-      currRoom.setColdPreset(coolInput.value);
-    }
-
-    if (warmInput.value >= 25 && warmInput.value <= 32) {
-      errorSpan.style.display = "none";
-      currRoom.setWarmPreset(warmInput.value);
-    }
-    coolInput.value = "";
-    warmInput.value = "";
-  }
-});
-
 module.exports = {
   stateOfElement,
   validateForm,
   addOption,
-  setSelectedRoom,
 };
