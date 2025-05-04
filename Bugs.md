@@ -80,7 +80,7 @@ The current temperature does not change when the plus and minus button is clicke
 
 ### Logs / Console Output:
 
-The selected room data is fetched but the current temperature does not change
+The selected room data is fetched, but the current temperature does not change
 
 ## Bug Title: Text description when AC is turned on does not show reasonable feedback
 
@@ -94,12 +94,12 @@ The text displays "warming room to" when the current temperature is less than 25
 
 ### Expected Behavior:
 
-- The text should display warming to when current temperature is between 25°C - 32°C
-- The text should display cooling to when current temperature is between 10°C - 25°C
+- The text should display warming to when the current temperature is between 25°C - 32°C
+- The text should display cooling to when the current temperature is between 10°C - 25°C
 
 ### Steps to Reproduce:
 
-1. Turn on the AC of a room.
+1. Turn on the AC in a room.
 2. The text description will show warming to
 
 ### Logs / Console Output:
@@ -113,17 +113,17 @@ current temp: 31
 **Type:** Functional Bug  
 **Identified using:** console.log
 
-### Expected Behavior:
+### Expected Behaviour:
 
 - The preset values should only update when values are within range
 
 ### Steps to Reproduce:
 
 1. Click on configure preset values
-2. Enter temperature that are out of range
+2. Enter temperatures that are out of range
 3. Click save
 4. The preset values update
 
 ### Logs / Console Output:
 
-The room object logged on console shows update values for preset vaues
+The room object logged onto the console shows updated values for preset values
