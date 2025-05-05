@@ -1,0 +1,28 @@
+{
+  "name": "skilled-thermostat-debugger",
+  "version": "1.0.0",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "jsdom"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Avatar-J/smart-themostat.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Avatar-J/smart-themostat/issues"
+  },
+  "homepage": "https://github.com/Avatar-J/smart-themostat#readme",
+  "description": "",
+  "dependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  }
+}

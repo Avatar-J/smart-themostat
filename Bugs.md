@@ -90,6 +90,7 @@ The selected room data is fetched, but the current temperature does not change
 
 ### Description:
 
+
 The text displays "warming room to" when the current temperature is less than 25 degrees.
 
 ### Expected Behavior:
@@ -106,6 +107,7 @@ The text displays "warming room to" when the current temperature is less than 25
 
 The current temperature of the room
 current temp: 31
+
 
 ## Bug Title: Preset values update when values are out of range
 
@@ -127,3 +129,4 @@ current temp: 31
 ### Logs / Console Output:
 
 The room object logged onto the console shows updated values for preset values
+

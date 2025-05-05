@@ -178,26 +178,30 @@ const coolOverlay = `linear-gradient(
 
 const warmOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
 
-const setInitialOverlay = () => {
-  document.querySelector(
-    ".room"
-  ).style.backgroundImage = `url('${rooms[0].image}')`;
+const setInitialOverlay = (rooms, coolOverlay, warmOverlay) => {
+  if (document.querySelector(".room")) {
+    document.querySelector(
+      ".room"
+    ).style.backgroundImage = `url('${rooms[0].image}')`;
 
-  document.querySelector(".room").style.backgroundImage = `${
-    rooms[0].currTemp < 25 ? coolOverlay : warmOverlay
-  }, url('${rooms[0].image}')`;
+    document.querySelector(".room").style.backgroundImage = `${
+      rooms[0].currTemp < 25 ? coolOverlay : warmOverlay
+    }, url('${rooms[0].image}')`;
+  }
 };
 
-const setOverlay = (room) => {
-  document.querySelector(".room").style.backgroundImage = `${
-    room.currTemp < 25 ? coolOverlay : warmOverlay
-  }, url('${room.image}')`;
+const setOverlay = (room, coolOverlay, warmOverlay) => {
+  if (document.querySelector(".room")) {
+    document.querySelector(".room").style.backgroundImage = `${
+      room.currTemp < 25 ? coolOverlay : warmOverlay
+    }, url('${room.image}')`;
+  }
 };
 
 // Set svg accordingly
-const svgPoint = document.querySelector(".point");
-const angleOffset = 86;
+
 const calculatePointPosition = (currTemp) => {
+  const angleOffset = 86;
   const normalizedTemp = (currTemp - 10) / (32 - 10);
   const angle = normalizedTemp * 180 + angleOffset;
 
@@ -211,8 +215,11 @@ const calculatePointPosition = (currTemp) => {
 };
 
 const setIndicatorPoint = (currTemp) => {
+  const svgPoint = document.querySelector(".point");
   const position = calculatePointPosition(currTemp);
-  svgPoint.style.transform = `translate(${position.translateX}px, ${position.translateY}px)`;
+  if (svgPoint) {
+    svgPoint.style.transform = `translate(${position.translateX}px, ${position.translateY}px)`;
+  }
 };
 
 // Handle the dropdown data
@@ -223,27 +230,32 @@ const currentTemp = document.getElementById("temp");
 let selectedRoom = rooms[0].name;
 
 // Set default temperature
-currentTemp.textContent = `${rooms[0].currTemp}°`;
+if (currentTemp) {
+  currentTemp.textContent = `${rooms[0].currTemp}°`;
+}
 
-setInitialOverlay();
+setInitialOverlay(rooms, coolOverlay, warmOverlay);
 
-document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
+if (document.querySelector(".currentTemp")) {
+  document.querySelector(".currentTemp").innerText = `${rooms[0].currTemp}°`;
+}
 
 //function to create and set an option element
 function addOption(room) {
   const option = document.createElement("option");
   option.value = room.name;
   option.textContent = room.name;
-  roomSelect.appendChild(option);
+  if (roomSelect) {
+    roomSelect.appendChild(option);
+  }
 }
-// Add new options from rooms array
 rooms.forEach((room) => {
   addOption(room);
 });
 
 // Set current temperature to currently selected room
 
-const setSelectedRoom = (selectedRoom) => {
+const setSelectedRoom = (selectedRoom, rooms) => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   setIndicatorPoint(room.currTemp);
 
@@ -251,27 +263,28 @@ const setSelectedRoom = (selectedRoom) => {
   console.log(room);
 
   //   set the current stats to current room temperature
-  currentTemp.textContent = `${room.currTemp}°`;
+  if (currentTemp) {
+    currentTemp.textContent = `${room.currTemp}°`;
+  }
 
   // Set the current room image
-  setOverlay(room);
+  setOverlay(room, coolOverlay, warmOverlay);
 
   // Set the current room name
   document.querySelector(".room-name").innerText = selectedRoom;
 
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
 };
-
 //listen for an event on your option in the dropdown and set selected room
-roomSelect.addEventListener("change", function () {
+roomSelect?.addEventListener("change", function () {
   selectedRoom = this.value;
 
-  setSelectedRoom(selectedRoom);
+  setSelectedRoom(selectedRoom, rooms);
 });
 
 // Set preset temperatures
 const defaultSettings = document.querySelector(".default-settings");
-defaultSettings.addEventListener("click", function (e) {
+defaultSettings?.addEventListener("click", function (e) {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   if (e.target.id === "cool") {
     room.setCurrTemp(room.coldPreset);
@@ -283,7 +296,7 @@ defaultSettings.addEventListener("click", function (e) {
 });
 
 // Increase and decrease temperature
-document.getElementById("increase").addEventListener("click", () => {
+document.getElementById("increase")?.addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   // const increaseRoomTemperature = room.increaseTemp.bind();
 
@@ -299,7 +312,7 @@ document.getElementById("increase").addEventListener("click", () => {
 
   generateRooms();
 
-  setOverlay(room);
+  setOverlay(room, coolOverlay, warmOverlay);
 
   warmBtn.style.backgroundColor = "#d9d9d9";
   coolBtn.style.backgroundColor = "#d9d9d9";
@@ -307,7 +320,7 @@ document.getElementById("increase").addEventListener("click", () => {
   document.querySelector(".currentTemp").innerText = `${room.currTemp}°`;
 });
 
-document.getElementById("reduce").addEventListener("click", () => {
+document.getElementById("reduce")?.addEventListener("click", () => {
   const room = rooms.find((currRoom) => currRoom.name === selectedRoom);
   // const decreaseRoomTemperature = room.decreaseTemp.bind();
 
@@ -323,7 +336,7 @@ document.getElementById("reduce").addEventListener("click", () => {
 
   generateRooms();
 
-  setOverlay(room);
+  setOverlay(room, coolOverlay, warmOverlay);
 
   warmBtn.style.backgroundColor = "#d9d9d9";
   coolBtn.style.backgroundColor = "#d9d9d9";
@@ -336,19 +349,19 @@ const warmBtn = document.getElementById("warm");
 
 const inputsDiv = document.querySelector(".inputs");
 // Toggle preset inputs
-document.getElementById("newPreset").addEventListener("click", () => {
+document.getElementById("newPreset")?.addEventListener("click", () => {
   if (inputsDiv.classList.contains("hidden")) {
     inputsDiv.classList.remove("hidden");
   }
 });
 
 // close inputs
-document.getElementById("close").addEventListener("click", () => {
+document.getElementById("close")?.addEventListener("click", () => {
   inputsDiv.classList.add("hidden");
 });
 
 // handle preset input data
-document.getElementById("save").addEventListener("click", () => {
+document.getElementById("save")?.addEventListener("click", () => {
   const coolInput = document.getElementById("coolInput");
   const warmInput = document.getElementById("warmInput");
   const errorSpan = document.querySelector(".error");
@@ -368,7 +381,7 @@ document.getElementById("save").addEventListener("click", () => {
     // Set current room's presets
     const currRoom = rooms.find((room) => room.name === selectedRoom);
 
-    if (coolInput.value >= 10 && coolInput.value < 25) {
+    if (Number(coolInput.value) >= 10 && Number(warmInput.value) < 25) {
       errorSpan.style.display = "none";
       currRoom.setColdPreset(coolInput.value);
     }
@@ -387,7 +400,7 @@ document.getElementById("save").addEventListener("click", () => {
 //set span of custom file upload to the name of file
 const inputFile = document.getElementById("file-input");
 let fileName = document.getElementById("file-name");
-inputFile.addEventListener("change", (e) => {
+inputFile?.addEventListener("change", (e) => {
   fileName.textContent = e.target.files[0].name;
 });
 
@@ -410,35 +423,37 @@ const modalOverlay = document.getElementById("modal-container");
 
 //function to hide or show modals
 function showHideModal(isModalVisible) {
-  if (isModalVisible) {
-    modalOverlay.classList.remove("hidden");
-    modalOverlay.classList.add("overlay");
-  } else {
-    modalOverlay.classList.add("hidden");
-    modalOverlay.classList.remove("overlay");
+  if (modalOverlay) {
+    if (isModalVisible) {
+      modalOverlay.classList.remove("hidden");
+      modalOverlay.classList.add("overlay");
+    } else {
+      modalOverlay.classList.add("hidden");
+      modalOverlay.classList.remove("overlay");
+    }
   }
 }
 
 //show modal when add room btn is clicked
-document.getElementById("show_modal").addEventListener("click", () => {
+document.getElementById("show_modal")?.addEventListener("click", () => {
   const isModalVisible = modalState.toggle();
   showHideModal(isModalVisible);
 });
 
 //close modal when add room close button is clicked
-document.getElementById("close-modal").addEventListener("click", () => {
+document.getElementById("close-modal")?.addEventListener("click", () => {
   const isModalVisible = modalState.toggle();
   showHideModal(isModalVisible);
 });
 
 //close modal when overlay of add room is clicked
-modalOverlay.addEventListener("click", () => {
+modalOverlay?.addEventListener("click", () => {
   const isModalVisible = modalState.toggle();
   showHideModal(isModalVisible);
 });
 
 //stop event propagation when other elements apart from the overlay is clicked
-document.getElementById("modal").addEventListener("click", (e) => {
+document.getElementById("modal")?.addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
@@ -469,7 +484,7 @@ function validateForm(newRoomFormData) {
 }
 
 //adds new room to array and dropdown when submitted
-document.getElementById("add-room-form").addEventListener("submit", (e) => {
+document.getElementById("add-room-form")?.addEventListener("submit", (e) => {
   e.preventDefault();
   const form = e.target;
 
@@ -534,7 +549,7 @@ document.getElementById("add-room-form").addEventListener("submit", (e) => {
     setTimeout(() => {
       const isModalVisible = modalState.toggle();
       showHideModal(isModalVisible);
-    }, 1500);
+    }, 1000);
 
     //add to dropdown
     addOption(newRoom);
@@ -551,13 +566,57 @@ const turnACsBtnState = stateOfElement();
 
 // Generate rooms
 
+function createTurnACBtn(turnACsBtnState, rooms) {
+  let areACsOn = turnACsBtnState.get();
+  //create the button
+  const turnACsOn = document.createElement("div");
+  const OnBtn = document.createElement("button");
+  OnBtn.textContent = `Turn ACs ${areACsOn ? "off" : "On"}`;
+  OnBtn.classList.add("turn-on-btn");
+  turnACsOn.classList.add("btn-section");
+
+  turnACsOn.appendChild(OnBtn);
+  document.querySelector(".rooms-control").appendChild(turnACsOn);
+
+  //add event listener to ACs button
+  OnBtn.addEventListener("click", () => {
+    rooms.forEach((room) => {
+      room.toggleAircon();
+    });
+    areACsOn = turnACsBtnState.toggle();
+    generateRooms();
+  });
+}
+
+function addTimerModalToEachRoom() {
+  document.querySelectorAll(".timer").forEach((el) => {
+    const timerModalState = stateOfElement();
+
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      let roomName;
+      if (e.target.classList.contains("timer")) {
+        roomName = e.target.id;
+      } else {
+        roomName = e.target.parentNode.id;
+      }
+      showTimerModal(timerModalState, roomName);
+
+      const isModalVisible = timerModalState.toggle();
+      if (isModalVisible) {
+        timerModalOverlay.classList.remove("hidden");
+        timerModalOverlay.classList.add("overlay");
+      }
+    });
+  });
+}
+
 const generateRooms = () => {
   const roomsControlContainer = document.querySelector(".rooms-control");
   let roomsHTML = "";
 
   rooms.forEach((room) => {
-    console.log("current temp:", room.currTemp);
-
     roomsHTML += `
     <div class="room-control" id="${room.name}">
           <div class="top">
@@ -590,52 +649,16 @@ const generateRooms = () => {
     `;
   });
 
-  roomsControlContainer.innerHTML = roomsHTML;
+  if (roomsControlContainer) {
+    roomsControlContainer.innerHTML = roomsHTML;
+  }
 
   //show turn on ACs button and add event listener
   if (roomsControlContainer) {
-    let areACsOn = turnACsBtnState.get();
-    //create the button
-    const turnACsOn = document.createElement("div");
-    const OnBtn = document.createElement("button");
-    OnBtn.textContent = `Turn ACs ${areACsOn ? "off" : "On"}`;
-    OnBtn.classList.add("turn-on-btn");
-    turnACsOn.classList.add("btn-section");
-
-    turnACsOn.appendChild(OnBtn);
-    document.querySelector(".rooms-control").appendChild(turnACsOn);
-
-    //add event listener to ACs button
-    OnBtn.addEventListener("click", () => {
-      rooms.forEach((room) => {
-        room.toggleAircon();
-      });
-      areACsOn = turnACsBtnState.toggle();
-      generateRooms();
-    });
+    createTurnACBtn(turnACsBtnState, rooms);
 
     //add timer modals to all rooms
-    document.querySelectorAll(".timer").forEach((el) => {
-      const timerModalState = stateOfElement();
-
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-
-        let roomName;
-        if (e.target.classList.contains("timer")) {
-          roomName = e.target.id;
-        } else {
-          roomName = e.target.parentNode.id;
-        }
-        showTimerModal(timerModalState, roomName);
-
-        const isModalVisible = timerModalState.toggle();
-        if (isModalVisible) {
-          timerModalOverlay.classList.remove("hidden");
-          timerModalOverlay.classList.add("overlay");
-        }
-      });
-    });
+    addTimerModalToEachRoom();
   }
 };
 const displayTime = (room) => {
@@ -683,7 +706,7 @@ const displayTime = (room) => {
 
 generateRooms();
 
-document.querySelector(".rooms-control").addEventListener("click", (e) => {
+document.querySelector(".rooms-control")?.addEventListener("click", (e) => {
   if (e.target.classList.contains("switch")) {
     const room = rooms.find(
       (room) => room.name === e.target.parentNode.parentNode.parentNode.id
@@ -693,7 +716,7 @@ document.querySelector(".rooms-control").addEventListener("click", (e) => {
   }
 
   if (e.target.classList.contains("room-name")) {
-    setSelectedRoom(e.target.parentNode.parentNode.id);
+    setSelectedRoom(e.target.parentNode.parentNode.id, rooms);
   }
 });
 
@@ -805,6 +828,17 @@ function setAutomaticTimer() {
 setAutomaticTimer();
 
 function updateAll(selectedRoom) {
-  setSelectedRoom(selectedRoom);
+  setSelectedRoom(selectedRoom, rooms);
   generateRooms();
 }
+
+module.exports = {
+  calculatePointPosition,
+  setOverlay,
+  setIndicatorPoint,
+  setSelectedRoom,
+  showHideModal,
+  generateRooms,
+  addOption,
+  setRoomTimer,
+};
