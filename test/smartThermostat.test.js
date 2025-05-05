@@ -3,19 +3,18 @@
  */
 
 "use strict";
-jest.mock("../main.js", () => {
-  const originalModule = jest.requireActual("../main.js");
 
-  return {
-    ...originalModule,
-    setIndicatorPoint: jest.fn(),
-    setOverlay: jest.fn(),
-  };
-});
-
-const { stateOfElement, validateForm, addOption } = require("../utils.js");
-const { setSelectedRoom } = require("../main.js");
-const { describe } = require("yargs");
+const {
+  stateOfElement,
+  validateForm,
+  setInitialOverlay,
+  addOption,
+  calculatePointPosition,
+  setIndicatorPoint,
+  showHideModal,
+  addListenerToSaveButton,
+  addListenerToFileInput,
+} = require("../utils.js");
 
 const mockRooms = [
   {
@@ -53,15 +52,15 @@ const mockRooms = [
     toggleAircon: jest.fn(),
   },
 ];
-const setIndicatorPoint = jest.fn();
-const setOverlay = jest.fn();
 
+//testing stateOfElement function
 test("should save the state of element", () => {
   const setInitialState = stateOfElement(false);
   expect(setInitialState.get()).toBe(false);
   expect(setInitialState.toggle()).toBe(true);
 });
 
+//testing validateFormFunction
 describe("validate form should return an object", () => {
   test("should return a false and error message", () => {
     expect(validateForm({})).toEqual({
@@ -78,12 +77,40 @@ describe("validate form should return an object", () => {
   });
 });
 
+//setInitialOverlay and setOverlay function
+describe("set initial UI of thermostat", () => {
+  const coolOverlay = `linear-gradient(
+        to bottom,
+        rgba(141, 158, 247, 0.2),
+        rgba(194, 197, 215, 0.1)
+      )`;
+
+  const warmOverlay = `linear-gradient(to bottom, rgba(236, 96, 98, 0.2), rgba(248, 210, 211, 0.13))`;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+            <div class="room"></div>
+        `;
+  });
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  test("should set room background to the image", () => {
+    setInitialOverlay(mockRooms, coolOverlay, warmOverlay);
+    expect(document.querySelector(".room").style.backgroundImage).toContain(
+      mockRooms[0].image
+    );
+  });
+});
+
+//add options to select
 describe("add option to dropdown", () => {
   beforeEach(() => {
-    document.body.innerHTML = `<select id="roomSelect"></select>`;
+    document.body.innerHTML = `<select id="rooms"></select>`;
   });
   test("should add an option with correct value and text", () => {
-    const roomSelect = document.getElementById("roomSelect");
+    const roomSelect = document.getElementById("rooms");
     addOption(mockRooms[0]);
 
     const options = roomSelect.querySelectorAll("option");
@@ -93,88 +120,113 @@ describe("add option to dropdown", () => {
   });
 });
 
-// describe("set selected room", () => {
-//   beforeEach(() => {
-//     document.body.innerHTML = `
-//       <div class="room-name"></div>
-//       <div class="currentTemp"></div>
-//       <div id="temp"></div>
-//       <div class="room"></div>
-//     `;
+test("should calculate point position and return an object", () => {
+  const result = calculatePointPosition(mockRooms[0].currTemp);
+  expect(result).toEqual({
+    translateX: -8.091750954318567,
+    translateY: -115.71742983013961,
+  });
+});
 
-//     global.rooms = mockRooms;
-//     global.currentTemp = document.getElementById("temp");
+describe("set indicator point", () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+            <div class="point"></div>
+        `;
+  });
 
-//     // Clear mock calls
-//     setIndicatorPoint.mockClear();
-//     setOverlay.mockClear();
-//   });
+  test("should set the transform style", () => {
+    const svgPoint = document.querySelector(".point");
+    setIndicatorPoint(mockRooms[0].currTemp);
+    expect(svgPoint.style.transform).toContain("translate");
+  });
+});
 
-//   test("should update UI with currentTemp and room-name", () => {
-//     setSelectedRoom("Living Room");
+describe("show or hide modal", () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+              <div id="modal-container"></div>
+          `;
+  });
 
-//     expect(setIndicatorPoint).toHaveBeenCalledTimes(1);
-//     expect(setIndicatorPoint).toHaveBeenCalledWith(32);
-//     expect(setOverlay).toHaveBeenCalledTimes(1);
-//     expect(setOverlay).toHaveBeenCalledWith(mockRooms[0]);
-//     expect(currentTemp.textContent).toBe("32°");
-//     expect(document.querySelector(".room-name").innerText).toBe("Living Room");
-//     expect(document.querySelector(".currentTemp").innerText).toBe("32°");
-//   });
-// });
+  test("should show overlay if state is true", () => {
+    const modalOverlay = document.getElementById("modal-container");
+    showHideModal(true);
+    expect(modalOverlay.classList).toContain("overlay");
+  });
 
-// describe("set the warm and cold preset value", () => {
-//   let coolInput;
-//   let warmInput;
-//   let errorSpan;
-//   let saveBtn;
+  test("should hide overlay if state is false", () => {
+    const modalOverlay = document.getElementById("modal-container");
+    showHideModal(false);
+    expect(modalOverlay.classList).toContain("hidden");
+  });
+});
 
-//   beforeEach(() => {
-//     global.rooms = mockRooms;
-//     global.selectedRoom = mockRooms[0].name;
+describe("set the warm and cold preset value", () => {
+  let coolInput;
+  let warmInput;
+  let errorSpan;
+  let saveBtn;
+  beforeEach(() => {
+    document.body.innerHTML = `
+                <input id="coolInput" type="number" />
+                <input id="warmInput" type="number"/>
+                <button id="save">Save</button>
+                <span class="error"></span>
+          `;
 
-//     document.body.innerHTML = `
-//         <input id="coolInput" type="number" />
-//         <input id="warmInput" type="number"/>
-//         <button id="save">Save</button>
-//         <span class="error"></span>
-//     `;
+    saveBtn = document.getElementById("save");
+    coolInput = document.getElementById("coolInput");
+    warmInput = document.getElementById("warmInput");
+    errorSpan = document.querySelector(".error");
+  });
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
 
-//     require("../main.js");
+  test("should display error message if coolInput is invalid", () => {
+    addListenerToSaveButton(mockRooms, mockRooms[0].name);
+    coolInput.value = "9";
+    warmInput.value = "30";
+    saveBtn.dispatchEvent(new Event("click"));
+    expect(errorSpan.innerText).toContain(
+      "Enter valid temperatures (10° - 32°)"
+    );
+  });
 
-//     saveBtn = document.getElementById("save");
-//     coolInput = document.getElementById("coolInput");
-//     warmInput = document.getElementById("warmInput");
-//     errorSpan = document.querySelector(".error");
-//   });
+  test("should call setColdPreset and setWarmPreset for valid inputs", () => {
+    addListenerToSaveButton(mockRooms, mockRooms[0].name);
+    coolInput.value = "20";
+    warmInput.value = "28";
 
-//   test("should display error message if coolInput is invalid", () => {
-//     coolInput.value = "9";
-//     warmInput.value = "30";
-//     saveBtn.dispatchEvent(new Event("click"));
-//     saveBtn.click();
-//     expect(errorSpan.innerText).toContain("Enter valid temperatures");
-//   });
+    saveBtn.dispatchEvent(new Event("click"));
 
-// test("should display error message if warm input is invalid", () => {
-//   coolInput.value = 11;
-//   warmInput.value = 20;
-//   saveBtn.dispatchEvent(new Event("click"));
-//   expect(errorSpan.innerHTML).toContain(
-//     "Enter valid temperatures (10° - 32°)"
-//   );
-// });
+    expect(errorSpan.innerHTML).toContain("");
+  });
+});
 
-// test("should call setColdPreset and setWarmPreset for valid inputs", () => {
-//   coolInput.value = "20";
-//   warmInput.value = "28";
+describe("File input change handler", () => {
+  beforeEach(() => {
+    document.body.innerHTML = `
+        <input type="file" id="file-input" />
+        <span id="file-name"></span>
+      `;
+  });
 
-//   saveBtn.dispatchEvent(new Event("click"));
+  it("should update file-name text content when file is selected", () => {
+    const input = document.getElementById("file-input");
+    const fileName = document.getElementById("file-name");
 
-//   const currRoom = rooms[0];
-//   // expect(currRoom.setColdPreset).toHaveBeenCalledWith("20");
-//   // expect(currRoom.setWarmPreset).toHaveBeenCalledWith("28");
-//   expect(coolInput.value).toBe("");
-//   expect(warmInput.value).toBe("");
-// });
-// });
+    addListenerToFileInput();
+    const imageFile = new File(["fake image data"], "photo.png", {
+      type: "image/png",
+    });
+    const event = new Event("change");
+    Object.defineProperty(input, "files", {
+      value: [imageFile],
+    });
+    input.dispatchEvent(event);
+
+    expect(fileName.textContent).toBe("photo.png");
+  });
+});
