@@ -146,6 +146,94 @@ function addListenerToFileInput() {
     fileName.textContent = e.target.files[0].name;
   });
 }
+function createTurnACBtn(turnACsBtnState, rooms) {
+  let areACsOn = turnACsBtnState.get();
+  //create the button
+  const turnACsOn = document.createElement("div");
+  const OnBtn = document.createElement("button");
+  OnBtn.textContent = `Turn ACs ${areACsOn ? "off" : "On"}`;
+  OnBtn.classList.add("turn-on-btn");
+  turnACsOn.classList.add("btn-section");
+
+  turnACsOn.appendChild(OnBtn);
+  document.querySelector(".rooms-control").appendChild(turnACsOn);
+
+  //add event listener to ACs button
+  OnBtn.addEventListener("click", () => {
+    rooms.forEach((room) => {
+      room.toggleAircon();
+    });
+    areACsOn = turnACsBtnState.toggle();
+    generateRooms();
+  });
+}
+
+function addTimerModalToEachRoom() {
+  document.querySelectorAll(".timer").forEach((el) => {
+    const timerModalState = stateOfElement();
+
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+
+      let roomName;
+      if (e.target.classList.contains("timer")) {
+        roomName = e.target.id;
+      } else {
+        roomName = e.target.parentNode.id;
+      }
+      showTimerModal(timerModalState, roomName);
+
+      const isModalVisible = timerModalState.toggle();
+      if (isModalVisible) {
+        timerModalOverlay.classList.remove("hidden");
+        timerModalOverlay.classList.add("overlay");
+      }
+    });
+  });
+}
+
+function addListenersToRoomControls(rooms, generateRooms) {
+  document.querySelector(".rooms-control")?.addEventListener("click", (e) => {
+    if (e.target.classList.contains("switch")) {
+      const room = rooms.find(
+        (room) => room.name === e.target.parentNode.parentNode.parentNode.id
+      );
+      room.toggleAircon();
+      generateRooms();
+    }
+
+    if (e.target.classList.contains("room-name")) {
+      setSelectedRoom(e.target.parentNode.parentNode.id, rooms);
+    }
+  });
+}
+
+function addListenerToTimerForm(
+  rooms,
+  roomName,
+  generateRooms,
+  setAutomaticTimer
+) {
+  document.getElementById("add-timer-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const timerModalOverlay = document.getElementById("timerModalOverlay");
+
+    const room = rooms.find((room) => room.name === roomName);
+    const form = e.target;
+    const startTimeInput = form.querySelector('[name="startTime"]');
+    const endTimeInput = form.querySelector('[name="endTime"]');
+    room.startTime = startTimeInput.value;
+    room.endTime = endTimeInput.value;
+
+    generateRooms();
+    setAutomaticTimer();
+    const isModalVisible = timerModalState.toggle();
+    if (!isModalVisible) {
+      timerModalOverlay.classList.add("hidden");
+      timerModalOverlay.classList.remove("overlay");
+    }
+  });
+}
 
 module.exports = {
   setInitialOverlay,
@@ -158,4 +246,8 @@ module.exports = {
   calculatePointPosition,
   addListenerToSaveButton,
   addListenerToFileInput,
+  createTurnACBtn,
+  addTimerModalToEachRoom,
+  addListenersToRoomControls,
+  addListenerToTimerForm,
 };

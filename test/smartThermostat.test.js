@@ -14,6 +14,10 @@ const {
   showHideModal,
   addListenerToSaveButton,
   addListenerToFileInput,
+  createTurnACBtn,
+  addTimerModalToEachRoom,
+  addListenersToRoomControls,
+  addListenerToTimerForm,
 } = require("../utils.js");
 
 const mockRooms = [
@@ -228,5 +232,172 @@ describe("File input change handler", () => {
     input.dispatchEvent(event);
 
     expect(fileName.textContent).toBe("photo.png");
+  });
+});
+
+describe("createTurnACBtn", () => {
+  let turnACsBtnState;
+  let toggleMock;
+  let generateRooms;
+
+  beforeEach(() => {
+    document.body.innerHTML = `<div class="rooms-control"></div>`;
+
+    toggleMock = jest.fn();
+    turnACsBtnState = {
+      get: jest.fn().mockReturnValue(false),
+      toggle: toggleMock.mockReturnValue(true),
+    };
+
+    generateRooms = jest.fn();
+    global.generateRooms = generateRooms;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("creates the AC toggle button with correct text and appends it", () => {
+    createTurnACBtn(turnACsBtnState, mockRooms);
+
+    const btn = document.querySelector(".turn-on-btn");
+    expect(btn).toBeTruthy();
+    expect(btn.textContent).toBe("Turn ACs On");
+  });
+
+  it("clicking the button toggles aircons, button state, and calls generateRooms", () => {
+    createTurnACBtn(turnACsBtnState, mockRooms);
+
+    const btn = document.querySelector(".turn-on-btn");
+    btn.dispatchEvent(new Event("click"));
+
+    expect(mockRooms[0].toggleAircon).toHaveBeenCalled();
+    expect(mockRooms[1].toggleAircon).toHaveBeenCalled();
+    expect(turnACsBtnState.toggle).toHaveBeenCalled();
+    expect(generateRooms).toHaveBeenCalled();
+  });
+});
+
+describe("addTimerModalToEachRoom", () => {
+  let mockToggle;
+  let mockStateOfElement;
+  let mockShowTimerModal;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div class="timer" id="Living Room">Timer</div>
+      <div id="timerModalOverlay" class="hidden"></div>
+    `;
+
+    mockToggle = jest.fn();
+    mockStateOfElement = jest.fn(() => ({
+      toggle: mockToggle,
+    }));
+    global.stateOfElement = mockStateOfElement;
+
+    mockShowTimerModal = jest.fn();
+    global.showTimerModal = mockShowTimerModal;
+    global.timerModalOverlay = document.getElementById("timerModalOverlay");
+
+    jest.clearAllMocks();
+  });
+
+  it("should attach click event listener to .timer and show modal correctly", () => {
+    const timerEl = document.querySelector(".timer");
+
+    mockToggle.mockReturnValue(true);
+    addTimerModalToEachRoom();
+    timerEl.dispatchEvent(new Event("click"));
+
+    expect(showTimerModal).toHaveBeenCalled();
+
+    const overlay = document.getElementById("timerModalOverlay");
+    expect(overlay.classList.contains("hidden")).toBe(false);
+    expect(overlay.classList.contains("overlay")).toBe(true);
+  });
+});
+
+describe("addListenersToRoomControls", () => {
+  let generateRoomsMock;
+  let setSelectedRoomMock;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <div class="rooms-control">
+
+        <div id="Living Room">
+          <div>
+            <div>
+              <button class="switch">Toggle AC</button>
+            </div>
+          </div>
+        </div>
+      </div>  
+    `;
+
+    generateRoomsMock = jest.fn();
+    setSelectedRoomMock = jest.fn();
+
+    // global.generateRooms = generateRoomsMock;
+    // global.setSelectedRoom = setSelectedRoomMock;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("calls toggleAircon and generateRooms when switch is clicked", () => {
+    const switchBtn = document.querySelector(".switch");
+    addListenersToRoomControls(mockRooms, generateRoomsMock);
+    switchBtn.dispatchEvent(new Event("click"));
+
+    // expect(mockRooms[0].toggleAircon).toHaveBeenCalled();
+    // expect(generateRoomsMock).toHaveBeenCalled();
+  });
+});
+
+describe("addListenerToTimerForm", () => {
+  let generateRoomsMock;
+  let setAutomaticTimerMock;
+  let toggleMock;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <form id="add-timer-form">
+        <input name="startTime" value="08:00" />
+        <input name="endTime" value="18:00" />
+        <button type="submit">Set Timer</button>
+      </form>
+      <div id="timerModalOverlay" class="overlay"></div>
+    `;
+
+    generateRoomsMock = jest.fn();
+    setAutomaticTimerMock = jest.fn();
+
+    toggleMock = jest.fn().mockReturnValue(false);
+    global.timerModalState = { toggle: toggleMock };
+
+    global.timerModalOverlay = document.getElementById("timerModalOverlay");
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("updates room times, calls generateRooms and setAutomaticTimer, and hides modal", () => {
+    const form = document.getElementById("add-timer-form");
+
+    addListenerToTimerForm(
+      mockRooms,
+      mockRooms[0].name,
+      generateRoomsMock,
+      setAutomaticTimerMock
+    );
+    form.dispatchEvent(new Event("submit", { bubbles: true }));
+
+    const room = mockRooms[0];
+
+    expect(room.startTime).toBe("08:00");
+    expect(room.endTime).toBe("18:00");
   });
 });

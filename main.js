@@ -588,7 +588,7 @@ function createTurnACBtn(turnACsBtnState, rooms) {
   });
 }
 
-function addTimerModalToEachRoom(rooms) {
+function addTimerModalToEachRoom() {
   document.querySelectorAll(".timer").forEach((el) => {
     const timerModalState = stateOfElement();
 
@@ -658,7 +658,7 @@ const generateRooms = () => {
     createTurnACBtn(turnACsBtnState, rooms);
 
     //add timer modals to all rooms
-    addTimerModalToEachRoom(rooms);
+    addTimerModalToEachRoom();
   }
 };
 const displayTime = (room) => {
